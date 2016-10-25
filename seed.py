@@ -1,7 +1,7 @@
 """Utility file to seed ratings database from MovieLens data in seed_data/"""
 
 from sqlalchemy import func
-from model import User
+from model import User, Movie, Rating
 # from model import Rating
 # from model import Movie
 
@@ -46,10 +46,50 @@ def load_movies():
         row = row.rstrip().split("|")
         movie_id = row[0]
         title = row[1][:-7]
-        released = datetime.strptime(row[2], '%d %b %Y')
-       
+        imdb_url = row[4]
+        
+        if row[2]:
+            released_at = datetime.strptime(row[2], "%d-%b-%Y")
+        else:
+            released_at = None
+
+        movie = Movie(movie_id=movie_id,
+                      title=title,
+                      released_at=released_at,
+                      imdb_url=imdb_url)
+        #Each instance of a class from our SQLAlchemy database model is a row in a table
+        
+        db.session.add(movie)
+
+    db.session.commit()
+
+    # Alternate for loop construction with enumerate and unpacking junk elements:
+    
+    # for i, row in enumerate(open("seed_data/u.item")):
+    #     row = row.rstrip()
+
+    #     # clever -- we can unpack part of the row!
+    #     movie_id, title, released_str, junk, imdb_url = row.split("|")[:5]
+
+
 def load_ratings():
     """Load ratings from u.data into database."""
+
+    print "Ratings"
+    Rating.query.delete()
+
+    for row in open("seed_data/u.data"):
+        row = row.rstrip()
+        user_id, movie_id, score, timestamp = row.split()
+        
+        rating = Rating(movie_id=movie_id,
+                        user_id=user_id,
+                        score=score)
+                        
+
+        db.session.add(rating)
+
+    db.session.commit()
 
 
 def set_val_user_id():
