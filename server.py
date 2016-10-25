@@ -53,7 +53,7 @@ def register_process():
     username = request.form.get("username")
     password = request.form.get("password")
 
-    email_search = User.query.filter_by(email = username).all()
+    email_search = User.query.filter_by(email=username).all()
 
     if email_search == []: # not in database
         user = User(email=username, password=password)
@@ -63,7 +63,6 @@ def register_process():
         return redirect("/")
     else:
         flash("Email already exists. Try again.")
-        # return render_template("register_form.html")
         return redirect("/register")
 
 
@@ -87,14 +86,23 @@ def login_process():
         flash("The email / password combo provided doesn't match our records.")
         return redirect("/register")
     else:
-        session["login"] = User.query.filter_by
+        user = User.query.filter_by(email=username).first()
+        session["login"] = user.user_id
         flash("Logged in!")
         return redirect("/")
 
 
+@app.route('/logout')
+def logout():
+    """Logout user."""
 
+    del session["login"]
+    flash("You have been logged out.")
+    return redirect("/")
 
-
+# Later...if login in session, display this button
+# If login is empty list, might give an error
+# Deleting makes it cleaner
 
 
 
