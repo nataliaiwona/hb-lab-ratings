@@ -39,6 +39,21 @@ def user_list():
     return render_template("user_list.html", users=users)
 
 
+@app.route('/users/<user_id>')
+def user_info(user_id):
+    """Specific user info (age, zipcode, list of movies rated and scores)."""
+
+    user = User.query.filter_by(user_id=user_id).first()
+    age = user.age
+    zipcode = user.zipcode
+    ratings = user.ratings
+
+    return render_template("user_details.html", age=age,
+                                                zipcode=zipcode,
+                                                ratings=ratings,
+                                                user_id=user_id)
+
+
 @app.route('/register', methods=["GET"])
 def register_form():
     """Display user registration form."""
@@ -104,6 +119,14 @@ def logout():
 # If login is empty list, might give an error
 # Deleting makes it cleaner
 
+
+@app.route('/movies')
+def movie_list():
+    """Show list of movies."""
+
+    movies = Movie.query.order_by(Movie.title).all()
+
+    return render_template("movie_list.html", movies=movies)
 
 
 

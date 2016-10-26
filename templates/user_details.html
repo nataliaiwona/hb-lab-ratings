@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <h2>User Number {{ user_id }}</h2>
+    <ul>
+        <li>Age: {{ age }}</li>
+        <li>Zipcode: {{ zipcode }}</li>
+        {% for rating in ratings %}
+        <li>Movie: {{ rating.movie.title }} | Score: {{ rating.score }}</li>
+        {% endfor %}
+    </ul>
+
+{% endblock %}
