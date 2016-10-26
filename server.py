@@ -10,6 +10,8 @@ from model import User, Rating, Movie, connect_to_db, db
 
 from sqlalchemy import func
 
+from datetime import datetime
+
 app = Flask(__name__)
 
 # Required to use Flask sessions and the debug toolbar
@@ -32,7 +34,7 @@ def index():
 
 @app.route('/users')
 def user_list():
-    """Show list of users."""
+    """Show entire list of users."""
 
     users = User.query.all()
 
@@ -122,13 +124,51 @@ def logout():
 
 @app.route('/movies')
 def movie_list():
-    """Show list of movies."""
+    """Show entire list of movies."""
 
     movies = Movie.query.order_by(Movie.title).all()
 
     return render_template("movie_list.html", movies=movies)
 
 
+@app.route('/movies/<movie_id>')
+def movie_info(movie_id):
+    """Specific details about movie."""
+
+    movie = Movie.query.filter_by(movie_id=movie_id).first()
+    title = movie.title
+    released_at = movie.released_at.strftime('%B %d, %Y')
+    imdb_url = movie.imdb_url
+    ratings = movie.ratings
+    user_score = None
+    update_rating = False
+    rating = False
+
+    if session.get("login"):
+        rating_exists = Rating.query.filter_by(user_id=session['login'], 
+                                               movie_id=movie_id).first()
+        if rating_exists: # yep, they rated the movie
+            user_score = rating_exists.score
+            update_rating = True # give option to update
+        else: # they didn't rate movie; give option to rate
+            rating = True 
+    # pass a variable to jinja that says, "yeah, let them rate"
+    return render_template("movie_details.html", title=title,
+                                                 released_at=released_at,
+                                                 imdb_url=imdb_url,
+                                                 ratings=ratings,
+                                                 movie_id=movie_id,
+                                                 user_score=user_score,
+                                                 update_rating=update_rating,
+                                                 rating=rating,
+                                                 )
+
+
+@app.route('/rate_movie', methods=["POST"])
+def rate_movie():
+    """Display movie rating form."""
+
+    # updates the database with new movie rating for user
 
 
 
