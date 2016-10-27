@@ -140,13 +140,16 @@ def movie_info(movie_id):
     released_at = movie.released_at.strftime('%B %d, %Y')
     imdb_url = movie.imdb_url
     ratings = movie.ratings
-    user_score = None
+
+    user_id = 0
+    user_score = 0
     update_rating = False
     rating = False
 
     if session.get("login"):
         rating_exists = Rating.query.filter_by(user_id=session['login'], 
                                                movie_id=movie_id).first()
+        user_id = session['login']
         if rating_exists: # yep, they rated the movie
             user_score = rating_exists.score
             update_rating = True # give option to update
@@ -161,7 +164,7 @@ def movie_info(movie_id):
                                                  user_score=user_score,
                                                  update_rating=update_rating,
                                                  rating=rating,
-                                                 )
+                                                 user_id=user_id,)
 
 
 @app.route('/rate_movie', methods=["POST"])
@@ -170,6 +173,24 @@ def rate_movie():
 
     # updates the database with new movie rating for user
 
+    update_rating = request.form.get("update_rating")
+    rating = request.form.get("rating") 
+    user_id = request.form.get("user_id")
+    movie_id = request.form.get("movie_id")
+
+    if update_rating:
+        current_rating = Rating.query.filter_by(movie_id=movie_id, 
+                                        user_id=user_id).first()
+        current_rating.score = update_rating
+        db.session.add(current_rating)
+        db.session.commit()
+
+    if rating:
+        rate = Rating(movie_id=movie_id, user_id=user_id, score=rating)
+        db.session.add(rate)
+        db.session.commit()
+
+    return jsonify(update_rating)
 
 
 

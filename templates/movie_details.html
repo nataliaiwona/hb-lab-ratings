@@ -8,26 +8,53 @@
     </ul>
     
     {% if user_score > 0 %}
-        <p>Your User Score: {{ user_score }}</p>
+        <p id="user-score">Your User Score: {{ user_score }}</p>
 
         <p>Update Your Rating:</p>
-        <form action="/rate_movie" method="POST">
-            <input type="radio" name="update_rating" value="1">1
-            <input type="radio" name="update_rating" value="2">2
-            <input type="radio" name="update_rating" value="3">3
-            <input type="radio" name="update_rating" value="4">4
-            <input type="radio" name="update_rating" value="5">5
+        <form id="update-rating-form" action="/rate_movie" method="POST">
+            <input class="update" type="radio" name="update_rating" value="1">1
+            <input class="update" type="radio" name="update_rating" value="2">2
+            <input class="update" type="radio" name="update_rating" value="3">3
+            <input class="update" type="radio" name="update_rating" value="4">4
+            <input class="update" type="radio" name="update_rating" value="5">5
+            <input id="update-user" type="hidden" name="user_id" value="{{ user_id }}">
+            <input id="update-movie" type="hidden" name="movie_id" value="{{ movie_id }}">
             <input type="submit" value="Update Rating">
         </form>
+        <script src="//code.jquery.com/jquery.js"></script>
+        <script>
+
+        function showRating(rating){
+            console.log(rating);
+            $('#user-score').html(rating);
+        }
+
+        function updateRating(evt){
+            evt.preventDefault();
+
+            var formInputs = {
+                'update_rating': $("input:radio[name=update_rating]:checked").val(),
+                'user_id': $("#update-user").val(),
+                'movie_id': $("#update-movie").val()
+            };
+            console.log(formInputs);
+            $.post("/rate_movie", formInputs, showRating);
+        }
+
+        $('#update-rating-form').on('submit', updateRating);
+
+        </script>
     {% endif %}    
     {% if rating == True %}
         <p>Rate {{ title }}:</p>
-        <form action="/rate_movie" method="POST">
+        <form id="new-rating-form" action="/rate_movie" method="POST">
             <input type="radio" name="rating" value="1">1
             <input type="radio" name="rating" value="2">2
             <input type="radio" name="rating" value="3">3
             <input type="radio" name="rating" value="4">4
             <input type="radio" name="rating" value="5">5
+            <input type="hidden" name="user_id" value="{{ user_id }}">
+            <input type="hidden" name="movie_id" value="{{ movie_id }}">
             <input type="submit" value="Rate">
         </form>
     {% endif %}
