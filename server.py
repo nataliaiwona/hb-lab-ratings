@@ -184,13 +184,15 @@ def rate_movie():
         current_rating.score = update_rating
         db.session.add(current_rating)
         db.session.commit()
+        score = update_rating
 
     if rating:
         rate = Rating(movie_id=movie_id, user_id=user_id, score=rating)
         db.session.add(rate)
         db.session.commit()
+        score = rating
 
-    return jsonify(update_rating)
+    return jsonify(score)
 
 
 

@@ -6,27 +6,26 @@
         <li>Release Date: {{ released_at }}</li>
         <li><a href="{{ imdb_url }}">IMDB</a></li>
     </ul>
-    
+    <script src="//code.jquery.com/jquery.js"></script>
     {% if user_score > 0 %}
         <p id="user-score">Your User Score: {{ user_score }}</p>
 
         <p>Update Your Rating:</p>
         <form id="update-rating-form" action="/rate_movie" method="POST">
-            <input class="update" type="radio" name="update_rating" value="1">1
-            <input class="update" type="radio" name="update_rating" value="2">2
-            <input class="update" type="radio" name="update_rating" value="3">3
-            <input class="update" type="radio" name="update_rating" value="4">4
-            <input class="update" type="radio" name="update_rating" value="5">5
+            <input type="radio" name="update_rating" value="1">1
+            <input type="radio" name="update_rating" value="2">2
+            <input type="radio" name="update_rating" value="3">3
+            <input type="radio" name="update_rating" value="4">4
+            <input type="radio" name="update_rating" value="5">5
             <input id="update-user" type="hidden" name="user_id" value="{{ user_id }}">
             <input id="update-movie" type="hidden" name="movie_id" value="{{ movie_id }}">
             <input type="submit" value="Update Rating">
         </form>
-        <script src="//code.jquery.com/jquery.js"></script>
+        
         <script>
 
         function showRating(rating){
-            console.log(rating);
-            $('#user-score').html(rating);
+            $('#user-score').html("Your User Score: " + rating);
         }
 
         function updateRating(evt){
@@ -37,7 +36,7 @@
                 'user_id': $("#update-user").val(),
                 'movie_id': $("#update-movie").val()
             };
-            console.log(formInputs);
+            
             $.post("/rate_movie", formInputs, showRating);
         }
 
@@ -46,6 +45,8 @@
         </script>
     {% endif %}    
     {% if rating == True %}
+        <p id="new-user-score"></p>
+
         <p>Rate {{ title }}:</p>
         <form id="new-rating-form" action="/rate_movie" method="POST">
             <input type="radio" name="rating" value="1">1
@@ -53,10 +54,33 @@
             <input type="radio" name="rating" value="3">3
             <input type="radio" name="rating" value="4">4
             <input type="radio" name="rating" value="5">5
-            <input type="hidden" name="user_id" value="{{ user_id }}">
-            <input type="hidden" name="movie_id" value="{{ movie_id }}">
+            <input id="new-user" type="hidden" name="user_id" value="{{ user_id }}">
+            <input id="new-movie" type="hidden" name="movie_id" value="{{ movie_id }}">
             <input type="submit" value="Rate">
         </form>
+
+        <script>
+        function showRating(rating) {
+            console.log(rating);
+            $('#new-user-score').html("Your User Score: " + rating);
+        }
+
+        function newRating(evt) {
+            evt.preventDefault();
+
+            var formInputs = {
+                'rating': $("input:radio[name=rating]:checked").val(),
+                'user_id': $("#new-user").val(),
+                'movie_id': $("#new-movie").val()
+            };
+            console.log(formInputs);
+
+            $.post("/rate_movie", formInputs, showRating);
+        }
+
+        $('#new-rating-form').on('submit', newRating);
+
+        </script>
     {% endif %}
 
 
