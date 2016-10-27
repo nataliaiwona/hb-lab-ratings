@@ -9,7 +9,11 @@
 <h2>Users</h2>
 <p><a href="/users">View all users</a></p>
 
-<a href="/login">Login</a>
-<a href="/logout">Logout</a>
+{% if "login" not in session %}
+    <a href="/login">Login</a>
+
+{% else %}
+    <a href="/logout">Logout</a>
+{% endif %}
 
 {% endblock %}
