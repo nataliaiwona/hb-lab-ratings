@@ -156,6 +156,70 @@ def movie_info(movie_id):
         else: # they didn't rate movie; give option to rate
             rating = True 
     # pass a variable to jinja that says, "yeah, let them rate"
+
+    # get average rating of movie
+
+    rating_scores = [r.score for r in ratings]
+    avg_rating = float(sum(rating_scores)) / len(rating_scores)
+
+    prediction = None
+
+    # prediction code: only predict if user hasn't rated it
+
+    if (user_score == 0) and (user_id != 0):
+        user = User.query.get(user_id)
+        if user:
+            prediction = user.predict_rating(movie)
+
+    # Either use the prediction or their real rating
+    if prediction:
+        # User hasn't scored; use our prediction if we made one
+        effective_rating = prediction
+
+    elif user_score:
+        # User has already scored; use that
+        effective_rating = user_score
+
+    else:
+        # User hasn't scored, and we couldn't get a prediction
+        effective_rating = None
+
+    # Get the eye's rating, either by predicting or using real rating
+
+    the_eye = (User.query.filter_by(email="eye").one())
+    eye_rating = Rating.query.filter_by(
+        user_id=the_eye.user_id, movie_id=movie_id).first()
+
+    if eye_rating is None:
+        eye_rating = the_eye.predict_rating(movie)
+
+    else:
+        eye_rating = eye_rating.score
+
+    if eye_rating and effective_rating:
+        difference = abs(eye_rating - effective_rating)
+
+    else:
+        # We couldn't get an eye rating, so we'll skip difference
+        difference = None
+
+    BERATEMENT_MESSAGES = [
+        "I suppose you don't have such bad taste after all.",
+        "I regret every decision that I've ever made that has " +
+            "brought me to listen to your opinion.",
+        "Words fail me, as your taste in movies has clearly " +
+            "failed you.",
+        "That movie is great. For a clown to watch. Idiot.",
+        "Words cannot express the awfulness of your taste."
+    ]
+
+    if difference is not None:
+        beratement = BERATEMENT_MESSAGES[int(difference)]
+
+    else:
+        beratement = None   
+
+
     return render_template("movie_details.html", title=title,
                                                  released_at=released_at,
                                                  imdb_url=imdb_url,
@@ -164,7 +228,10 @@ def movie_info(movie_id):
                                                  user_score=user_score,
                                                  update_rating=update_rating,
                                                  rating=rating,
-                                                 user_id=user_id,)
+                                                 user_id=user_id,
+                                                 prediction=prediction,
+                                                 average=avg_rating,
+                                                 beratement=beratement)
 
 
 @app.route('/rate_movie', methods=["POST"])
@@ -182,7 +249,6 @@ def rate_movie():
         current_rating = Rating.query.filter_by(movie_id=movie_id, 
                                         user_id=user_id).first()
         current_rating.score = update_rating
-        db.session.add(current_rating)
         db.session.commit()
         score = update_rating
 

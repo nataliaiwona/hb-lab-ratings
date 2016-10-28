@@ -17,7 +17,6 @@ $.post("/rate_movie", formInputs, showRating);
 $('#update-rating-form').on('submit', updateRating);
 
 function showNewRating(rating) {
-  console.log(rating);
   $('#new-user-score').html("Your User Score: " + rating);
 }
 
@@ -29,7 +28,6 @@ function newRating(evt) {
     'user_id': $("#new-user").val(),
     'movie_id': $("#new-movie").val()
   };
-  console.log(formInputs);
 
   $.post("/rate_movie", formInputs, showNewRating);
 }

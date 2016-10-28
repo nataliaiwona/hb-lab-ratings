@@ -5,8 +5,17 @@
     <ul>
         <li>Release Date: {{ released_at }}</li>
         <li><a href="{{ imdb_url }}">IMDB</a></li>
+        <li>Average rating: {{ average }}</li>
     </ul>
-    <script src="//code.jquery.com/jquery.js"></script>
+        
+        {% if prediction %}
+            <p>We predict you will rate this movie {{ prediction }}.</p>
+        {% endif %}
+
+        {% if beratement %}
+            <p>{{ beratement }}</p>
+        {% endif %}
+
     {% if user_score > 0 %}
         <p id="user-score">Your User Score: {{ user_score }}</p>
 
@@ -22,27 +31,6 @@
             <input type="submit" value="Update Rating">
         </form>
         
-        <script>
-
-        function showRating(rating){
-            $('#user-score').html("Your User Score: " + rating);
-        }
-
-        function updateRating(evt){
-            evt.preventDefault();
-
-            var formInputs = {
-                'update_rating': $("input:radio[name=update_rating]:checked").val(),
-                'user_id': $("#update-user").val(),
-                'movie_id': $("#update-movie").val()
-            };
-            
-            $.post("/rate_movie", formInputs, showRating);
-        }
-
-        $('#update-rating-form').on('submit', updateRating);
-
-        </script>
     {% endif %}    
     {% if rating == True %}
         <p id="new-user-score"></p>
@@ -59,28 +47,6 @@
             <input type="submit" value="Rate">
         </form>
 
-        <script>
-        function showRating(rating) {
-            console.log(rating);
-            $('#new-user-score').html("Your User Score: " + rating);
-        }
-
-        function newRating(evt) {
-            evt.preventDefault();
-
-            var formInputs = {
-                'rating': $("input:radio[name=rating]:checked").val(),
-                'user_id': $("#new-user").val(),
-                'movie_id': $("#new-movie").val()
-            };
-            console.log(formInputs);
-
-            $.post("/rate_movie", formInputs, showRating);
-        }
-
-        $('#new-rating-form').on('submit', newRating);
-
-        </script>
     {% endif %}
 
 
@@ -92,9 +58,5 @@
         {% endfor %}
     
     </ul>
-
-
-
-
 
 {% endblock %}
